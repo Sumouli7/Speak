@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Session Room 🎥</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        #meet {
+            height: calc(100vh - 60px);
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    🎥 Session with {{ booking.counselor.username }} |
+    {{ booking.slot.start_time|date:"d M Y, h:i A" }}
+</div>
+
+{% if is_counselor %}
+
+    <!-- 👑 Counselor enters meeting -->
+    <div id="meet"></div>
+
+    <script src="https://meet.jit.si/external_api.js"></script>
+
+    <script>
+        const roomName = "{{ room_name }}";
+        const domain = "meet.jit.si";
+
+        const options = {
+            roomName: roomName,
+            width: "100%",
+            height: "100%",
+            parentNode: document.querySelector('#meet'),
+
+            userInfo: {
+                displayName: "{{ request.user.username }}"
+            },
+
+            configOverwrite: {
+                prejoinPageEnabled: false,
+                enableLobby: false
+            }
+        };
+
+        const api = new JitsiMeetExternalAPI(domain, options);
+    </script>
+
+{% else %}
+
+    <!-- ⏳ User waits -->
+    <div style="text-align:center; margin-top:100px;">
+        <h2>Waiting for counselor to join...</h2>
+        <p>Your session will start automatically.</p>
+    </div>
+
+    <script>
+        setTimeout(function(){
+            location.reload();
+        }, 5000);
+    </script>
+
+{% endif %}
+
+</body>
+</html>
