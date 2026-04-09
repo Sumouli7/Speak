@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-key")
 
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['getspeakhub.org', 'www.getspeakhub.org', '.onrender.com']
 
 
 # ---------------- APPLICATIONS ---------------- #
