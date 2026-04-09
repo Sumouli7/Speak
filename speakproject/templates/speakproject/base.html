@@ -168,11 +168,12 @@ html, body {
 <!-- 🔥 GLOBAL HEADER -->
 <div class="header {% if hide_nav %}center-header{% endif %}">
 
-    <!-- 🧠 LOGO -->
-    <a href="{% url 'main_home' %}" class="logo-section">
-        <img src="{% static 'images/logo.png' %}" class="logo">
-        <span class="brand-name">Speak</span>
-    </a>
+{% load static %}
+
+<a href="{% url 'main_home' %}" class="logo-section">
+    <img src="{% static 'images/logo.png' %}" class="logo">
+    <span class="brand-name">Speak</span>
+</a>
 
     {% if not hide_nav %}
     <!-- 🔹 NAV -->
