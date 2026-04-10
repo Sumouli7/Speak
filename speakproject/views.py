@@ -31,11 +31,49 @@ def main_home(request):
 
 from django.http import HttpResponse
 
+from django.contrib.auth import authenticate, login
+
 def user_login(request):
-    return HttpResponse("Login working")
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('main_home')  # change if needed
+        else:
+            return render(request, 'speakproject/user_login.html', {
+                'error': 'Invalid username or password'
+            })
+
+    return render(request, 'speakproject/user_login.html')
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib import messages
 
 def user_register(request):
-    return HttpResponse("Register working")
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        if User.objects.filter(username=username).exists():
+            return render(request, 'speakproject/user_register.html', {
+                'error': 'Username already exists'
+            })
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+        user.save()
+
+        return redirect('login')
+
+    return render(request, 'speakproject/user_register.html')
 
 
 #------------------Employee Login------------------#
