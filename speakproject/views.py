@@ -22,11 +22,10 @@ from .utils import send_payment_confirmation_email, send_invoice_email
 
 
 # ---------------- HOME ---------------- #
-def main_home(request):
-    return render(request, "speakproject/main_home.html", {
-        "hide_nav": True
-    })
+from django.http import HttpResponse
 
+def main_home(request):
+    return HttpResponse("HOME WORKING")
 
 
 from django.http import HttpResponse
