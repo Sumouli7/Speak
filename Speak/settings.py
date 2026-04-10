@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 import cloudinary
+from django.contrib.auth import get_user_model
 
 
 
