@@ -41,7 +41,7 @@ def user_login(request):
 
         if user is not None:
             login(request, user)
-            return redirect('main_home')  # change if needed
+            return redirect('user_dashboard')  
         else:
             return render(request, 'speakproject/user_login.html', {
                 'error': 'Invalid username or password'
