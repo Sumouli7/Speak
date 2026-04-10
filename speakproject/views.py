@@ -27,51 +27,15 @@ def main_home(request):
         "hide_nav": True
     })
 
-# ---------------- USER LOGIN ---------------- #
+
+
+from django.http import HttpResponse
+
 def user_login(request):
-    if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
+    return HttpResponse("Login working")
 
-        user = authenticate(request, username=username, password=password)
-
-        if user:
-            login(request, user)
-            return redirect('user_dashboard')
-        else:
-            messages.error(request, "Invalid credentials ❌")
-
-    return render(request, "speakproject/user_login.html")
-
-
-# ---------------- USER REGISTER ---------------- #
 def user_register(request):
-    if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
-        country = request.POST['country']
-        email = request.POST.get('email')   # ✅ ADD THIS
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists ❌")
-            return redirect("user_register")
-
-        user = User.objects.create_user(
-            username=username,
-            password=password,
-            email=email   # ✅ VERY IMPORTANT
-        )
-
-        Profile.objects.create(
-            user=user,
-            user_type='patient',
-            country=country   # ✅ also store country properly
-        )
-
-        messages.success(request, "Registered successfully 🎉")
-        return redirect("user_login")
-
-    return render(request, "speakproject/user_register.html")
+    return HttpResponse("Register working")
 
 
 #------------------Employee Login------------------#
