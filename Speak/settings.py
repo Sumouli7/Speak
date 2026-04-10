@@ -1,6 +1,9 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import cloudinary
+
+
 
 
 # ---------------- BASE DIR ---------------- #
@@ -11,6 +14,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 from dotenv import load_dotenv
 
 load_dotenv()  # 🔥 ALWAYS load .env properly
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
 
 print("EMAIL USER:", os.getenv("EMAIL_USER"))
 print("EMAIL PASS:", os.getenv("EMAIL_PASS"))
@@ -35,6 +43,9 @@ INSTALLED_APPS = [
 
     'speakproject.apps.SpeakprojectConfig',
     'reminders',
+    'cloudinary',
+    'cloudinary_storage',
+
 ]
 
 
@@ -116,6 +127,7 @@ import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 # ---------------- DEFAULT PK ---------------- #
