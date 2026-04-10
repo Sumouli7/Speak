@@ -193,4 +193,14 @@ if DEBUG:
     print("🔑 RAZORPAY KEY:", RAZORPAY_KEY_ID)
     print("🔐 RAZORPAY SECRET:", RAZORPAY_KEY_SECRET)
     print("🎥 AGORA:", AGORA_APP_ID)
+    from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+if not User.objects.filter(username="sumou").exists():
+    User.objects.create_superuser(
+        username="sumou",
+        email="sumouli05ece@gmail.com",
+        password="Sumouli@04"
+    )
     
