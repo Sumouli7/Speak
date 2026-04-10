@@ -78,6 +78,10 @@
             margin-top: 15px;
             font-size: 13px;
         }
+        .login-text a {
+    text-decoration: none;
+    font-weight: 500;
+}
     </style>
 </head>
 
@@ -107,7 +111,9 @@
     <button type="submit">Register</button>
 </form>
     <div class="link">
-        Already have an account? <a href="/login/">Login</a>
+        <p class="login-text">
+    Already have an account? <a href="{% url 'login' %}">Login</a>
+</p>
     </div>
 </div>
 

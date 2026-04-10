@@ -61,6 +61,13 @@
             margin-top: 15px;
             font-size: 14px;
         }
+        .register-text a {
+    text-decoration: none;
+}
+
+.register-text a:hover {
+    text-decoration: underline; /* optional hover effect */
+}
     </style>
 </head>
 
@@ -84,8 +91,9 @@
         <button type="submit">Login</button>
     </form>
 
-    <!-- REGISTER LINK -->
-    <a href="/user-register/" class="link">Don't have an account? Register</a>
+    <p class="register-text">
+    Don't have an account? <a href="{% url 'register' %}">Register</a>
+</p>
 </div>
 
 </body>
