@@ -202,7 +202,7 @@ def submit_rating(request, booking_id):
 
     # 🔒 Only booking owner
     if request.user != booking.user:
-        return redirect("user_dasboard")
+        return redirect("user_dashboard")
 
     # 🔒 Only after session ends
     if booking.slot.end_time > timezone.now():
@@ -268,14 +268,12 @@ def user_home(request):
 
     now = timezone.now()
 
-    # ✅ Get available slots
-    booked_slot_ids = Booking.objects.values_list('slot_id', flat=True)
-
     slots = Slot.objects.filter(
-        start_time__gt=now
-    ).exclude(
-        id__in=booked_slot_ids
-    ).select_related('counselor', 'counselor__profile').order_by('start_time')
+    start_time__gte=timezone.now(),
+    booking__isnull=True
+).select_related('counselor', 'counselor__profile').order_by('start_time')
+    print("ALL SLOTS:", Slot.objects.all().count())
+    print("FILTERED SLOTS:", slots.count())
 
     # ✅ Get user bookings
     bookings = Booking.objects.filter(
