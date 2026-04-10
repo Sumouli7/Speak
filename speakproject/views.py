@@ -32,6 +32,13 @@ from django.http import HttpResponse
 
 from django.contrib.auth import authenticate, login
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+from django.contrib import messages
+from .models import Profile   # ✅ IMPORTANT
+
+# ---------------- USER LOGIN ---------------- #
 def user_login(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -48,10 +55,9 @@ def user_login(request):
             })
 
     return render(request, 'speakproject/user_login.html')
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib import messages
 
+
+# ---------------- USER REGISTER ---------------- #
 def user_register(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -63,6 +69,7 @@ def user_register(request):
                 'error': 'Username already exists'
             })
 
+        # ✅ Create user
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -70,10 +77,15 @@ def user_register(request):
         )
         user.save()
 
+        # ✅ VERY IMPORTANT: Create profile as patient
+        Profile.objects.create(
+            user=user,
+            user_type='patient'
+        )
+
         return redirect('login')
 
     return render(request, 'speakproject/user_register.html')
-
 
 #------------------Employee Login------------------#
 def employee_login(request):
@@ -190,7 +202,7 @@ def submit_rating(request, booking_id):
 
     # 🔒 Only booking owner
     if request.user != booking.user:
-        return redirect("user_dashboard")
+        return redirect("user_dasboard")
 
     # 🔒 Only after session ends
     if booking.slot.end_time > timezone.now():
@@ -236,16 +248,27 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta
 from .models import Profile, Booking, Slot
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from datetime import timedelta
+import random
 
 @login_required
 def user_home(request):
-    profile, created = Profile.objects.get_or_create(user=request.user)
+    # ✅ Ensure profile exists with correct default
+    profile, created = Profile.objects.get_or_create(
+        user=request.user,
+        defaults={'user_type': 'patient'}
+    )
 
+    # ✅ Prevent wrong user types (no redirect loop)
     if profile.user_type != 'patient':
-        return redirect('user_dashboard')
+        return HttpResponse("Access denied: Not a patient user")
 
     now = timezone.now()
 
+    # ✅ Get available slots
     booked_slot_ids = Booking.objects.values_list('slot_id', flat=True)
 
     slots = Slot.objects.filter(
@@ -254,21 +277,22 @@ def user_home(request):
         id__in=booked_slot_ids
     ).select_related('counselor', 'counselor__profile').order_by('start_time')
 
+    # ✅ Get user bookings
     bookings = Booking.objects.filter(
         user=request.user
     ).select_related('slot', 'counselor')
 
+    # ✅ Join session logic
     for b in bookings:
         start = b.slot.start_time
         end = start + timedelta(minutes=b.duration)
         b.can_join = (start - timedelta(minutes=10)) <= now <= end
 
-    # 📊 STATS
+    # 📊 Stats
     total_bookings = bookings.count()
     completed_sessions = bookings.filter(status='completed').count()
 
-    # 🧠 TIPS
-    import random
+    # 🧠 Tips
     all_tips = [
         "Take 5 deep breaths when stressed 🌬",
         "Drink enough water 💧",
@@ -283,8 +307,6 @@ def user_home(request):
         "slots": slots,
         "bookings": bookings,
         "now": now,
-
-        # 🔥 NEW
         "total_bookings": total_bookings,
         "completed_sessions": completed_sessions,
         "tips": tips,
