@@ -27,17 +27,30 @@
     top: 0;
     z-index: 10;
 
-    background: linear-gradient(135deg, #667eea, #764ba2); /* 💥 ADD BACK */
-
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
-    padding: 15px 0;
+    padding: 15px 20px;
 
     display: flex;
-    justify-content: center;   /* 💥 center logo */
+    justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+.nav-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
        .container {
     width: 100%;
     
@@ -159,9 +172,54 @@
 html, body {
     height: 100%;
 }
+/* 📱 MOBILE VIEW */
+/* 📱 MOBILE VIEW */
+@media (max-width: 768px) {
+
+    .header {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .nav-links {
+        justify-content: center;
+    }
+
+    .user-section {
+        justify-content: center;
+    }
+
+    .container {
+        padding: 40px 15px;
+    }
+
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .footer-right {
+        text-align: center;
+    }
+
+    /* ✅ logo fix INSIDE SAME block */
+    .logo {
+        width: 32px;
+        height: 32px;
+    }
+}
+    
+
+
     </style>
 
 </head>
+    <title>{% block title %}Speak{% endblock %}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <body>
 
