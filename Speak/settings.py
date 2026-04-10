@@ -8,14 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # ---------------- LOAD ENV (FIXED) ---------------- #
-env_path = os.path.join(BASE_DIR, ".env")
+from dotenv import load_dotenv
 
-if os.path.exists(env_path):
-    # load_dotenv(env_path)
-#     print("✅ .env loaded from:", env_path)
-# else:
-#     print("❌ .env NOT FOUND a 
- load_dotenv()
+load_dotenv()  # 🔥 ALWAYS load .env properly
 
 print("EMAIL USER:", os.getenv("EMAIL_USER"))
 print("EMAIL PASS:", os.getenv("EMAIL_PASS"))
@@ -176,5 +171,4 @@ if DEBUG:
     print("🔑 RAZORPAY KEY:", RAZORPAY_KEY_ID)
     print("🔐 RAZORPAY SECRET:", RAZORPAY_KEY_SECRET)
     print("🎥 AGORA:", AGORA_APP_ID)
-    MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    
