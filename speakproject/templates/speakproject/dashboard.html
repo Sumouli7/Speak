@@ -129,13 +129,18 @@ body {
                 <div class="profile-section">
 
                     {% if slot.counselor.profile.profile_picture %}
-                        <img src="{{ slot.counselor.profile.profile_picture.url }}" class="profile-pic">
+                        <img src="{{ slot.counselor.profile.profile_picture.url }}" 
+     class="profile-pic"
+     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+     
+<div class="profile-pic" style="display:none;align-items:center;justify-content:center;background:#6366f1;color:white;font-weight:bold;">
+    {{ slot.counselor.username|slice:":1"|upper }}
+</div>
                     {% else %}
                         <div class="profile-pic" style="display:flex;align-items:center;justify-content:center;background:#6366f1;color:white;font-weight:bold;">
                             {{ slot.counselor.username|slice:":1"|upper }}
                         </div>
                     {% endif %}
-
                     <div>
                         <strong>{{ slot.counselor.username }}</strong>
 
