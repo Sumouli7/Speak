@@ -20,16 +20,16 @@ from io import BytesIO
 from django.core.mail import EmailMessage
 from .utils import send_payment_confirmation_email
 import threading
-def send_emails_async(booking):
-    import threading
+# def send_emails_async(booking):
+#     import threading
 
-    def run():
-        try:
-            send_payment_confirmation_email(booking)
-        except Exception as e:
-            print("EMAIL ERROR:", str(e))
+#     def run():
+#         try:
+#             send_payment_confirmation_email(booking)
+#         except Exception as e:
+#             print("EMAIL ERROR:", str(e))
 
-    threading.Thread(target=run, daemon=True).start()
+#     threading.Thread(target=run, daemon=True).start()
 
 
 
@@ -484,64 +484,21 @@ def payment(request, booking_id):
 def payment_success(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
 
-    # 🔥 FORCE PAYMENT (TEST ONLY)
+    # 🔥 FORCE PAYMENT (TEST MODE)
     booking.paid = True
     booking.status = "paid"
     booking.save()
 
-    send_emails_async(booking)
+    # 🔥 SEND EMAIL
+    send_payment_confirmation_email(booking)
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking
     })
 
-    # 🔥 Razorpay client
-    client = razorpay.Client(
-        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-    )
 
-    # 🔥 Get Razorpay params
-    razorpay_payment_id = request.GET.get("razorpay_payment_id")
-    razorpay_order_id = request.GET.get("razorpay_order_id")
-    razorpay_signature = request.GET.get("razorpay_signature")
 
-    # ❌ If params missing
-    if not (razorpay_payment_id and razorpay_order_id and razorpay_signature):
-        return render(request, "speakproject/error.html", {
-            "message": "Invalid payment response ❌"
-        })
-
-    try:
-        # ✅ VERIFY SIGNATURE
-        client.utility.verify_payment_signature({
-            'razorpay_order_id': razorpay_order_id,
-            'razorpay_payment_id': razorpay_payment_id,
-            'razorpay_signature': razorpay_signature
-        })
-
-    except Exception as e:
-        print("PAYMENT VERIFICATION FAILED:", str(e))
-        return render(request, "speakproject/error.html", {
-            "message": "Payment verification failed ❌"
-        })
-
-    # ✅ MARK PAYMENT SUCCESS
-    booking.paid = True
-    booking.status = "paid"
-
-    total = booking.original_amount or booking.amount
-
-    booking.counselor_earning = (total * Decimal("0.8")).quantize(Decimal("0.01"))
-    booking.platform_earning = (total * Decimal("0.2")).quantize(Decimal("0.01"))
-
-    booking.save()
-
-    # ✅ EMAIL (safe)
-    send_emails_async(booking)
-
-    return render(request, "speakproject/payment_success.html", {
-        "booking": booking
-    })
+   
 
 
 

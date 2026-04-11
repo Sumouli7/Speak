@@ -170,6 +170,9 @@ Speak Team
 # ---------------- PAYMENT CONFIRMATION EMAIL ---------------- #
 
 def send_payment_confirmation_email(booking):
+    print("🔥 EMAIL FUNCTION CALLED")
+    print("TO:", booking.user.email)
+
     subject = "Your Session is Confirmed 💬"
 
     local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
