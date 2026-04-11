@@ -37,27 +37,20 @@ def get_currency_symbol(user):
 # ---------------- PAYMENT CONFIRMATION EMAIL ---------------- #
 
 def send_payment_confirmation_email(booking):
-    print("🔥 FUNCTION ENTERED")
+    print("🔥 EMAIL FUNCTION STARTED")
 
     try:
-        result = send_mail(
-            subject="Payment Successful - Speak",
-            message=f"""
-Hi {booking.user.username},
+        from django.core.mail import send_mail  # 👈 import inside (important)
 
-Your payment was successful 🎉
-
-Booking ID: {booking.id}
-Counselor: {booking.counselor.username}
-
-Thank you for choosing Speak 💜
-""",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[booking.user.email],
+        send_mail(
+            "Payment Successful",
+            f"Booking {booking.id} confirmed",
+            settings.DEFAULT_FROM_EMAIL,
+            [booking.user.email],
             fail_silently=False,
         )
 
-        print("✅ SEND_MAIL RESULT:", result)
+        print("✅ EMAIL SENT")
 
     except Exception as e:
         print("❌ EMAIL ERROR:", str(e))
