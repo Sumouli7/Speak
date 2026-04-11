@@ -210,9 +210,20 @@ def send_payment_confirmation_email(booking):
     from django.conf import settings
 
     send_mail(
-        "TEST EMAIL",
-        "If you see this, SMTP works",
-        settings.EMAIL_HOST_USER,
-        ["sumouli05ece@gmail.com"],  # 🔥 PUT YOUR REAL EMAIL HERE
+        subject="Payment Success Test",
+        message=f"""
+Hi {booking.user.username},
+
+Your payment was successful.
+
+Booking ID: {booking.id}
+Amount: {booking.amount}
+
+If you received this, email is working.
+
+- Speak
+""",
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[booking.user.email],
         fail_silently=False,
     )
