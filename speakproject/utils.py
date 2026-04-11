@@ -205,37 +205,61 @@ We're here for you always 🌱
 
 
 # ---------------- REMINDER EMAIL ---------------- #
-
 def send_session_reminders():
     now = timezone.now()
-    upcoming = now + timedelta(minutes=30)
+    window_start = now + timedelta(minutes=28)
+    window_end = now + timedelta(minutes=32)
 
-    sessions = Booking.objects.filter(status='paid')
+    bookings = Booking.objects.filter(
+        status='paid',
+        reminder_sent=False,                        # ← don't resend
+        slot__start_time__gte=window_start,
+        slot__start_time__lte=window_end,
+    ).select_related('user', 'counselor', 'slot')
 
-    for booking in sessions:
-        session_time = booking.slot.start_time
+    for booking in bookings:
+        try:
+            local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
 
-        if now <= session_time <= upcoming:
-            local_time = convert_to_user_timezone(session_time, booking.user)
-
-            email = EmailMessage(
-                subject="⏰ Session Reminder",
+            # Email to user
+            user_email = EmailMessage(
+                subject="⏰ Session Reminder - Speak",
                 body=f"""
-                <p>Hi {booking.user.username},</p>
-
-                <p>Your session with <b>{booking.counselor.username}</b> starts in 30 minutes.</p>
-
-                <p><b>Time:</b> {local_time.strftime('%I:%M %p')}</p>
-
-                <p>Please be ready!</p>
-
-                <p>- Speak Team</p>
-
-                {EMAIL_FOOTER_HTML}
-                """,
+<p>Hi {booking.user.username},</p>
+<p>Your session with <b>{booking.counselor.username}</b> starts in <b>30 minutes</b>.</p>
+<p><b>Time:</b> {local_time.strftime('%I:%M %p')}</p>
+<p>Join here: <a href="{booking.meeting_link}">{booking.meeting_link}</a></p>
+<p>– Speak Team</p>
+{EMAIL_FOOTER_HTML}
+""",
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[booking.user.email],
             )
+            user_email.content_subtype = "html"
+            user_email.send(fail_silently=False)
 
-            email.content_subtype = "html"
-            email.send()
+            # Email to counselor
+            counselor_email = EmailMessage(
+                subject="⏰ Upcoming Session in 30 Minutes - Speak",
+                body=f"""
+<p>Hi {booking.counselor.username},</p>
+<p>You have a session with <b>{booking.user.username}</b> starting in <b>30 minutes</b>.</p>
+<p><b>Time:</b> {local_time.strftime('%I:%M %p')}</p>
+<p>Join here: <a href="{booking.meeting_link}">{booking.meeting_link}</a></p>
+<p>– Speak Team</p>
+{EMAIL_FOOTER_HTML}
+""",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[booking.counselor.email],
+            )
+            counselor_email.content_subtype = "html"
+            counselor_email.send(fail_silently=False)
+
+            # Mark done so it never fires again for this booking
+            booking.reminder_sent = True
+            booking.save(update_fields=['reminder_sent'])
+
+            print(f"✅ Reminder sent: booking #{booking.id}")
+
+        except Exception as e:
+            print(f"❌ Reminder failed for booking #{booking.id}: {str(e)}")
