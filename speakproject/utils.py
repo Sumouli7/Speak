@@ -154,7 +154,7 @@ Speak Team
     )
 
     email.attach_file(pdf_path)
-    email.send()
+    email.send(fail_silently=False)
 
 # ---------------- REMINDER EMAIL ---------------- #
 
