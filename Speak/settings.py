@@ -21,9 +21,6 @@ cloudinary.config(
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
-print("EMAIL USER:", os.getenv("EMAIL_USER"))
-print("EMAIL PASS:", os.getenv("EMAIL_PASS"))
-
 
 # ---------------- SECURITY ---------------- #
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-key")

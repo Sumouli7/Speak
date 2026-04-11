@@ -98,21 +98,21 @@
 
 <script>
     var options = {
-        "key": "{{ razorpay_key }}",
-        "amount": Number("{{ amount|default:'0' }}"),
-        "order_id": "{{ order_id }}",
-        "currency": "INR",
-        "name": "SpeakCare",
-        "description": "Session Booking",
+    "key": "{{ razorpay_key }}",
+    "amount": Number("{{ amount|default:'0' }}"),
+    "order_id": "{{ order_id }}",
+    "currency": "{{ booking.currency }}",
+    "name": "SpeakCare",
+    "description": "Session Booking",
 
-        "handler": function (response){
-            window.location.href = "/payment-success/{{ booking.id }}/";
-        },
+    "handler": function (response) {
+        window.location.href = `/payment-success/{{ booking.id }}/?razorpay_payment_id=${response.razorpay_payment_id}&razorpay_order_id=${response.razorpay_order_id}&razorpay_signature=${response.razorpay_signature}`;
+    },
 
-        "theme": {
-            "color": "#667eea"
-        }
-    };
+    "theme": {
+        "color": "#667eea"
+    }
+};
 
     var rzp = new Razorpay(options);
 

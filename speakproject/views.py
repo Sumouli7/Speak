@@ -461,14 +461,49 @@ def payment(request, booking_id):
 
 # ---------------- PAYMENT SUCCESS ---------------- #
 
-
 def payment_success(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
 
+    # 🔥 Prevent double processing
+    if booking.paid:
+        return render(request, "speakproject/payment_success.html", {
+            "booking": booking
+        })
+
+    # 🔥 Razorpay client
+    client = razorpay.Client(
+        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+    )
+
+    # 🔥 Get Razorpay params
+    razorpay_payment_id = request.GET.get("razorpay_payment_id")
+    razorpay_order_id = request.GET.get("razorpay_order_id")
+    razorpay_signature = request.GET.get("razorpay_signature")
+
+    # ❌ If params missing
+    if not (razorpay_payment_id and razorpay_order_id and razorpay_signature):
+        return render(request, "speakproject/error.html", {
+            "message": "Invalid payment response ❌"
+        })
+
+    try:
+        # ✅ VERIFY SIGNATURE
+        client.utility.verify_payment_signature({
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature
+        })
+
+    except Exception as e:
+        print("PAYMENT VERIFICATION FAILED:", str(e))
+        return render(request, "speakproject/error.html", {
+            "message": "Payment verification failed ❌"
+        })
+
+    # ✅ MARK PAYMENT SUCCESS
     booking.paid = True
     booking.status = "paid"
 
-    # 🔥 80-20 SPLIT
     total = booking.original_amount or booking.amount
 
     booking.counselor_earning = (total * Decimal("0.8")).quantize(Decimal("0.01"))
@@ -476,9 +511,12 @@ def payment_success(request, booking_id):
 
     booking.save()
 
-    # 🔥 SEND EMAILS (THIS WAS MISSING)
-    send_payment_confirmation_email(booking)
-    send_invoice_email(booking.user.email, booking)
+    # ✅ EMAIL (safe)
+    try:
+        send_payment_confirmation_email(booking)
+        send_invoice_email(booking.user.email, booking)
+    except Exception as e:
+        print("EMAIL ERROR:", str(e))
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking
