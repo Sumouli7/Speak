@@ -367,7 +367,7 @@ def counselor_home(request):
          b.status = 'completed'
          b.save(update_fields=['status'])
 
-         send_session_email(b) 
+         
 
     return render(request, "speakproject/employee_dashboard.html", {
         "ongoing": ongoing,
