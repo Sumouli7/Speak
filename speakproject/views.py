@@ -474,14 +474,6 @@ def payment(request, booking_id):
 
 # ---------------- PAYMENT SUCCESS ---------------- #
 
-# def payment_success(request, booking_id):
-#     booking = get_object_or_404(Booking, id=booking_id)
-
-#     # 🔥 Prevent double processing
-#     if booking.paid:
-#         return render(request, "speakproject/payment_success.html", {
-#             "booking": booking
-#         })
 def payment_success(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
 
@@ -489,14 +481,16 @@ def payment_success(request, booking_id):
     booking.status = "paid"
     booking.save()
 
-    # ✅ Run email in background thread — never blocks the page
-    def send_email_async():
-        try:
-            send_payment_confirmation_email(booking)
-        except Exception as e:
-            print(f"❌ Email failed (non-fatal): {str(e)}")
-
-    threading.Thread(target=send_email_async, daemon=True).start()
+    # 🔥 TEMP: run directly (not in thread) to see exact error
+    print("🔥 ABOUT TO SEND EMAIL")
+    print("🔥 USER EMAIL:", booking.user.email)
+    try:
+        send_payment_confirmation_email(booking)
+        print("🔥 EMAIL FUNCTION FINISHED")
+    except Exception as e:
+        import traceback
+        print("🔥 CRASHED:", str(e))
+        traceback.print_exc()
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking
