@@ -104,6 +104,35 @@ body {
 .tip-list {
     padding-left: 18px;
 }
+.rating {
+    font-size: 12px;
+    color: #f59e0b;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;  /* THIS is key */
+    gap: 12px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+}
+
+.card .btn {
+    align-self: center;
+}
+ .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.name {
+    font-weight: 600;
+    font-size: 16px;
+}
 
 @media (max-width: 768px) {
     .container {
@@ -112,6 +141,9 @@ body {
     .extra-cards {
         grid-template-columns: 1fr;
     }
+   
+
+
 }
 </style>
 
@@ -141,16 +173,16 @@ body {
                             {{ slot.counselor.username|slice:":1"|upper }}
                         </div>
                     {% endif %}
-                    <div>
-                        <strong>{{ slot.counselor.username }}</strong>
+                    <div class="info">
+    <div class="name">{{ slot.counselor.username }}</div>
 
-                        <div class="desc">
-                            {{ slot.counselor.profile.description|default:"Experienced counselor 💜" }}
-                        </div>
+    <div class="desc">
+        {{ slot.counselor.profile.description|default:"Experienced counselor 💜" }}
+    </div>
 
-                        <div style="font-size:12px; color:#f59e0b;">
-                            ⭐ {{ slot.counselor.profile.avg_rating }}
-                        </div>
+    <div class="rating">
+        ⭐ {{ slot.counselor.profile.avg_rating }}
+    </div>
                     </div>
 
                 </div>
