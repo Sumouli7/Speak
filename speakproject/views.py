@@ -20,13 +20,14 @@ from io import BytesIO
 from django.core.mail import EmailMessage
 from .utils import send_payment_confirmation_email, send_invoice_email
 import threading
-
 def send_emails_async(booking):
-    try:
-        send_payment_confirmation_email(booking)
-        send_invoice_email(booking.user.email, booking)
-    except Exception as e:
-        print("EMAIL ERROR:", str(e))
+    import threading
+
+    threading.Thread(
+        target=send_payment_confirmation_email,
+        args=(booking,)
+    ).start()
+
 
 
 # ---------------- HOME ---------------- #
@@ -520,7 +521,7 @@ def payment_success(request, booking_id):
     booking.save()
 
     # ✅ EMAIL (safe)
-    threading.Thread(target=send_emails_async, args=(booking,)).start()
+    send_emails_async(booking)
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking
