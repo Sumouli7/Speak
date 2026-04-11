@@ -20,19 +20,6 @@ from io import BytesIO
 from django.core.mail import EmailMessage
 from .utils import send_payment_confirmation_email
 import threading
-# def send_emails_async(booking):
-#     import threading
-
-#     def run():
-#         try:
-#             send_payment_confirmation_email(booking)
-#         except Exception as e:
-#             print("EMAIL ERROR:", str(e))
-
-#     threading.Thread(target=run, daemon=True).start()
-
-
-
 # ---------------- HOME ---------------- #
 def main_home(request):
     return render(request, "speakproject/main_home.html", {
@@ -479,14 +466,7 @@ def payment_success(request, booking_id):
     booking.paid = True
     booking.status = "paid"
     booking.save()
-
-    def send_email_async():
-        try:
-            send_payment_confirmation_email(booking)
-        except Exception as e:
-            print(f"❌ Email failed: {str(e)}")
-
-    threading.Thread(target=send_email_async, daemon=False).start()
+    send_payment_confirmation_email(booking)
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking

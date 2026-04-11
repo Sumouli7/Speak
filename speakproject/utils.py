@@ -170,21 +170,38 @@ Speak Team
 # ---------------- PAYMENT CONFIRMATION EMAIL ---------------- #
 def send_payment_confirmation_email(booking):
     import traceback
+    from sendgrid import SendGridAPIClient
+    from sendgrid.helpers.mail import Mail
+
     print("🔥 EMAIL FUNCTION CALLED")
     print("TO:", booking.user.email)
-    print("FROM:", settings.DEFAULT_FROM_EMAIL)
-    print("EMAIL_HOST_USER:", settings.EMAIL_HOST_USER)
-    print("EMAIL_HOST_PASSWORD set:", bool(settings.EMAIL_HOST_PASSWORD))
 
     try:
-        send_mail(
-            subject="Your Session is Confirmed 💬",
-            message=f"Hi {booking.user.username}, your session is confirmed!",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[booking.user.email],
-            fail_silently=False,
+        local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
+        currency = get_currency_symbol(booking.user)
+        counselor_name = booking.counselor.get_full_name() or booking.counselor.username
+
+        message = Mail(
+            from_email='speakappplatform@gmail.com',
+            to_emails=booking.user.email,
+            subject='Your Session is Confirmed 💬',
+            plain_text_content=f"""Hi {booking.user.username},
+
+Your session has been successfully booked! 🎉
+
+Counselor   : {counselor_name}
+Date        : {local_time.strftime('%d %B %Y')}
+Time        : {local_time.strftime('%I:%M %p')}
+Duration    : {booking.duration} minutes
+Amount Paid : {currency}{booking.amount}
+
+– Team Speak
+"""
         )
-        print("✅ EMAIL SENT SUCCESSFULLY")  # ← add this
+
+        sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
+        response = sg.send(message)
+        print(f"✅ EMAIL SENT — status: {response.status_code}")
 
     except Exception as e:
         print("❌ EMAIL ERROR:", str(e))
