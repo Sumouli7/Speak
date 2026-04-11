@@ -280,12 +280,13 @@ def user_home(request):
 
     now = timezone.now()
 
+    booked_slot_ids = Booking.objects.values_list('slot_id', flat=True)
+
     slots = Slot.objects.filter(
-    start_time__gte=timezone.now(),
-    booking__isnull=True
-).select_related('counselor', 'counselor__profile').order_by('start_time')
-    print("ALL SLOTS:", Slot.objects.all().count())
-    print("FILTERED SLOTS:", slots.count())
+        start_time__gte=timezone.now(),
+    ).exclude(
+        id__in=booked_slot_ids
+    ).select_related('counselor', 'counselor__profile').order_by('start_time')
 
     # ✅ Get user bookings
     bookings = Booking.objects.filter(
