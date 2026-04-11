@@ -480,15 +480,13 @@ def payment_success(request, booking_id):
     booking.status = "paid"
     booking.save()
 
-    print("🔥 ABOUT TO SEND EMAIL")
-    print("🔥 USER EMAIL:", booking.user.email)
-    try:
-        send_payment_confirmation_email(booking)
-        print("🔥 EMAIL FUNCTION FINISHED")
-    except Exception as e:
-        import traceback
-        print("🔥 CRASHED:", str(e))
-        traceback.print_exc()
+    def send_email_async():
+        try:
+            send_payment_confirmation_email(booking)
+        except Exception as e:
+            print(f"❌ Email failed: {str(e)}")
+
+    threading.Thread(target=send_email_async, daemon=True).start()
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking
