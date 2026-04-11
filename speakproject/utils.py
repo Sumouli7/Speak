@@ -168,7 +168,6 @@ Speak Team
 
 
 # ---------------- PAYMENT CONFIRMATION EMAIL ---------------- #
-
 def send_payment_confirmation_email(booking):
     import traceback
     print("🔥 EMAIL FUNCTION CALLED")
@@ -185,12 +184,11 @@ def send_payment_confirmation_email(booking):
             recipient_list=[booking.user.email],
             fail_silently=False,
         )
-        print("✅ EMAIL SENT SUCCESSFULLY")
+        print("✅ EMAIL SENT SUCCESSFULLY")  # ← add this
 
     except Exception as e:
         print("❌ EMAIL ERROR:", str(e))
         traceback.print_exc()
-
 
 # ---------------- REMINDER EMAIL ---------------- #
 def send_session_reminders():
