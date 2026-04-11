@@ -19,6 +19,14 @@ from reportlab.lib.units import inch
 from io import BytesIO
 from django.core.mail import EmailMessage
 from .utils import send_payment_confirmation_email, send_invoice_email
+import threading
+
+def send_emails_async(booking):
+    try:
+        send_payment_confirmation_email(booking)
+        send_invoice_email(booking.user.email, booking)
+    except Exception as e:
+        print("EMAIL ERROR:", str(e))
 
 
 # ---------------- HOME ---------------- #
@@ -512,11 +520,7 @@ def payment_success(request, booking_id):
     booking.save()
 
     # ✅ EMAIL (safe)
-    try:
-        send_payment_confirmation_email(booking)
-        send_invoice_email(booking.user.email, booking)
-    except Exception as e:
-        print("EMAIL ERROR:", str(e))
+    threading.Thread(target=send_emails_async, args=(booking,)).start()
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking
