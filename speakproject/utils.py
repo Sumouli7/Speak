@@ -63,6 +63,13 @@ def convert_to_user_timezone(dt, user):
         tz = pytz.UTC
 
     return dt.astimezone(tz)
+def get_currency_symbol(user):
+    if user.profile.country == "IN":
+        return "₹"
+    elif user.profile.country == "NG":
+        return "₦"
+    else:
+        return "₹"
 
 
 # ---------------- PDF ---------------- #
@@ -196,61 +203,16 @@ def send_session_reminders():
 # ---------------- PAYMENT EMAIL ---------------- #
 
 from django.core.mail import EmailMultiAlternatives
-
 def send_payment_confirmation_email(booking):
     print("🔥 PAYMENT EMAIL FUNCTION CALLED")
 
-    local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
+    from django.core.mail import send_mail
+    from django.conf import settings
 
-    subject = "✅ Payment Successful - Session Confirmed"
-
-    text_content = f"""
-Hi {booking.user.username},
-
-Your payment has been successfully received.
-
-Counselor: {booking.counselor.username}
-Time: {local_time.strftime('%I:%M %p')}
-
-Your session is now confirmed.
-
-- Speak Team
-"""
-
-    html_content = f"""
-    <p>Hi {booking.user.username},</p>
-
-    <p>Your payment has been successfully received 💜</p>
-
-    <p>
-    <strong>Counselor:</strong> {booking.counselor.username}<br>
-    <strong>Time:</strong> {local_time.strftime('%I:%M %p')}
-    </p>
-
-    <p>Your session is now confirmed.</p>
-
-    <p>Thank you for choosing Speak 💜</p>
-
-    {EMAIL_FOOTER_HTML}
-    """
-
-    email = EmailMultiAlternatives(
-        subject,
-        text_content,
-        settings.DEFAULT_FROM_EMAIL,
-        [booking.user.email],
+    send_mail(
+        "TEST EMAIL",
+        "If you see this, SMTP works",
+        settings.EMAIL_HOST_USER,
+        ["sumouli05ece@gmail.com"],  # 🔥 PUT YOUR REAL EMAIL HERE
+        fail_silently=False,
     )
-
-    email.attach_alternative(html_content, "text/html")
-
-    email.send(fail_silently=False)
-
-    print("✅ EMAIL SENT SUCCESSFULLY")
-
-def get_currency_symbol(user):
-    if user.profile.country == "IN":
-        return "₹"
-    elif user.profile.country == "NG":
-        return "₦"
-    else:
-        return "₹"
