@@ -18,15 +18,18 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from io import BytesIO
 from django.core.mail import EmailMessage
-from .utils import send_payment_confirmation_email, send_invoice_email
+from .utils import send_payment_confirmation_email
 import threading
 def send_emails_async(booking):
     import threading
 
-    threading.Thread(
-        target=send_payment_confirmation_email,
-        args=(booking,)
-    ).start()
+    def run():
+        try:
+            send_payment_confirmation_email(booking)
+        except Exception as e:
+            print("EMAIL ERROR:", str(e))
+
+    threading.Thread(target=run, daemon=True).start()
 
 
 
@@ -470,14 +473,27 @@ def payment(request, booking_id):
 
 # ---------------- PAYMENT SUCCESS ---------------- #
 
+# def payment_success(request, booking_id):
+#     booking = get_object_or_404(Booking, id=booking_id)
+
+#     # 🔥 Prevent double processing
+#     if booking.paid:
+#         return render(request, "speakproject/payment_success.html", {
+#             "booking": booking
+#         })
 def payment_success(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
 
-    # 🔥 Prevent double processing
-    if booking.paid:
-        return render(request, "speakproject/payment_success.html", {
-            "booking": booking
-        })
+    # 🔥 FORCE PAYMENT (TEST ONLY)
+    booking.paid = True
+    booking.status = "paid"
+    booking.save()
+
+    send_emails_async(booking)
+
+    return render(request, "speakproject/payment_success.html", {
+        "booking": booking
+    })
 
     # 🔥 Razorpay client
     client = razorpay.Client(
