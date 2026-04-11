@@ -486,7 +486,7 @@ def payment_success(request, booking_id):
         except Exception as e:
             print(f"❌ Email failed: {str(e)}")
 
-    threading.Thread(target=send_email_async, daemon=True).start()
+    threading.Thread(target=send_email_async, daemon=False).start()
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking
