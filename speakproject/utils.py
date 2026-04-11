@@ -170,38 +170,26 @@ Speak Team
 # ---------------- PAYMENT CONFIRMATION EMAIL ---------------- #
 
 def send_payment_confirmation_email(booking):
+    import traceback
     print("🔥 EMAIL FUNCTION CALLED")
     print("TO:", booking.user.email)
+    print("FROM:", settings.DEFAULT_FROM_EMAIL)
+    print("EMAIL_HOST_USER:", settings.EMAIL_HOST_USER)
+    print("EMAIL_HOST_PASSWORD set:", bool(settings.EMAIL_HOST_PASSWORD))
 
-    subject = "Your Session is Confirmed 💬"
+    try:
+        send_mail(
+            subject="Your Session is Confirmed 💬",
+            message=f"Hi {booking.user.username}, your session is confirmed!",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[booking.user.email],
+            fail_silently=False,
+        )
+        print("✅ EMAIL SENT SUCCESSFULLY")
 
-    local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
-    currency = get_currency_symbol(booking.user)
-
-    message = f"""
-Hi {booking.user.username},
-
-Your session has been successfully booked! 🎉
-
-🧑‍⚕️ Counselor: {booking.counselor.username}
-📅 Date: {local_time.strftime('%Y-%m-%d')}
-⏰ Time: {local_time.strftime('%I:%M %p')}
-⏱ Duration: {booking.duration} minutes
-💰 Amount Paid: {currency}{booking.amount}
-
-Thank you for choosing Speak 💜
-We're here for you always 🌱
-
-– Team Speak
-"""
-
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [booking.user.email],
-        fail_silently=False,
-    )
+    except Exception as e:
+        print("❌ EMAIL ERROR:", str(e))
+        traceback.print_exc()
 
 
 # ---------------- REMINDER EMAIL ---------------- #
