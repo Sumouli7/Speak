@@ -473,7 +473,6 @@ def payment(request, booking_id):
 
 
 # ---------------- PAYMENT SUCCESS ---------------- #
-
 def payment_success(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
 
@@ -481,7 +480,6 @@ def payment_success(request, booking_id):
     booking.status = "paid"
     booking.save()
 
-    # 🔥 TEMP: run directly (not in thread) to see exact error
     print("🔥 ABOUT TO SEND EMAIL")
     print("🔥 USER EMAIL:", booking.user.email)
     try:

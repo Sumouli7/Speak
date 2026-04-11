@@ -111,6 +111,7 @@ class Booking(models.Model):
     # 📊 STATUS
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     reminder_sent = models.BooleanField(default=False)
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
 
     # ⭐ REVIEW
     rating = models.IntegerField(null=True, blank=True)
