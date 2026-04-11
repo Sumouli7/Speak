@@ -484,18 +484,22 @@ def payment(request, booking_id):
 def payment_success(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
 
-    # 🔥 FORCE PAYMENT (TEST MODE)
     booking.paid = True
     booking.status = "paid"
     booking.save()
 
-    # 🔥 SEND EMAIL
-    send_payment_confirmation_email(booking)
+    # ✅ Run email in background thread — never blocks the page
+    def send_email_async():
+        try:
+            send_payment_confirmation_email(booking)
+        except Exception as e:
+            print(f"❌ Email failed (non-fatal): {str(e)}")
+
+    threading.Thread(target=send_email_async, daemon=True).start()
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking
     })
-
 
 
    
