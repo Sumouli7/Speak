@@ -10,45 +10,6 @@ import pytz
 import os
 
 
-# ---------------- EMAIL FOOTER ---------------- #
-
-EMAIL_FOOTER_HTML = """
-<hr>
-<table width="100%" style="font-size:12px; color:#555;">
-<tr>
-<td>
-<strong>Speak</strong><br>
-A safe, global mental wellness platform
-</td>
-</tr>
-
-<tr>
-<td>
-<table width="100%">
-<tr>
-<td>
-<strong>Support</strong><br>
-support@speak.org
-</td>
-
-<td align="right">
-<strong>Grievances</strong><br>
-admin@speak.org
-</td>
-</tr>
-</table>
-</td>
-</tr>
-
-<tr>
-<td style="padding-top:10px;">
-© 2026 Speak. Designed with care.
-</td>
-</tr>
-</table>
-"""
-
-
 # ---------------- TIMEZONE ---------------- #
 
 def convert_to_user_timezone(dt, user):
@@ -73,7 +34,36 @@ def get_currency_symbol(user):
         return "₹"
 
 
-# ---------------- PDF ---------------- #
+# ---------------- PAYMENT CONFIRMATION EMAIL ---------------- #
+
+def send_payment_confirmation_email(booking):
+    print("🔥 FUNCTION ENTERED")
+
+    try:
+        result = send_mail(
+            subject="Payment Successful - Speak",
+            message=f"""
+Hi {booking.user.username},
+
+Your payment was successful 🎉
+
+Booking ID: {booking.id}
+Counselor: {booking.counselor.username}
+
+Thank you for choosing Speak 💜
+""",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[booking.user.email],
+            fail_silently=False,
+        )
+
+        print("✅ SEND_MAIL RESULT:", result)
+
+    except Exception as e:
+        print("❌ EMAIL ERROR:", str(e))
+
+
+# ---------------- PDF GENERATOR ---------------- #
 
 def generate_invoice_pdf(booking):
     file_path = os.path.join(settings.MEDIA_ROOT, f"invoice_{booking.id}.pdf")
@@ -95,33 +85,12 @@ def generate_invoice_pdf(booking):
 
     local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
 
-    elements.append(Paragraph("<b>Session Details</b>", styles['Heading3']))
-    elements.append(Spacer(1, 10))
-
     elements.append(Paragraph(f"User: {booking.user.username}", styles['Normal']))
     elements.append(Paragraph(f"Counselor: {booking.counselor.username}", styles['Normal']))
-    elements.append(Paragraph(f"Date: {local_time.strftime('%Y-%m-%d')}", styles['Normal']))
-    elements.append(Paragraph(f"Time: {local_time.strftime('%I:%M %p')}", styles['Normal']))
+    elements.append(Paragraph(f"Time: {local_time}", styles['Normal']))
 
     currency = get_currency_symbol(booking.user)
     elements.append(Paragraph(f"Amount Paid: {currency}{booking.amount}", styles['Normal']))
-
-    elements.append(Spacer(1, 20))
-
-    if hasattr(booking, "notes") and booking.notes:
-        elements.append(Paragraph("<b>Session Summary</b>", styles['Heading2']))
-        elements.append(Spacer(1, 10))
-
-        for line in booking.notes.split("\n"):
-            elements.append(Paragraph(line, styles['Normal']))
-            elements.append(Spacer(1, 5))
-
-    elements.append(Spacer(1, 20))
-
-    if booking.rating:
-        elements.append(Paragraph("<b>Rating</b>", styles['Heading3']))
-        elements.append(Spacer(1, 8))
-        elements.append(Paragraph(f"{booking.rating} / 5 ⭐", styles['Normal']))
 
     elements.append(Spacer(1, 20))
     elements.append(Paragraph("Thank you for choosing Speak 💜", styles['Italic']))
@@ -134,80 +103,36 @@ def generate_invoice_pdf(booking):
 # ---------------- INVOICE EMAIL ---------------- #
 
 def send_invoice_email(user_email, booking):
-    local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
-    currency = get_currency_symbol(booking.user)
+    try:
+        pdf_path = generate_invoice_pdf(booking)
 
-    subject = "Payment Successful - Invoice Attached"
-
-    body = f"""
+        email = EmailMessage(
+            subject="Payment Successful - Invoice",
+            body=f"""
 Hi {booking.user.username},
 
-Your session has been successfully booked.
-
-Counselor: {booking.counselor.username}
-Time: {local_time.strftime('%I:%M %p')}
-Amount: {currency}{booking.amount}
+Your session has been booked successfully.
 
 Please find your invoice attached.
 
 Thanks,
 Speak Team
-"""
-
-    pdf_path = generate_invoice_pdf(booking)
-
-    email = EmailMessage(
-        subject,
-        body,
-        settings.DEFAULT_FROM_EMAIL,
-        [user_email],
-    )
-
-    email.attach_file(pdf_path)
-    email.send(fail_silently=False)
-
-
-# ---------------- PAYMENT CONFIRMATION EMAIL ---------------- #
-def send_payment_confirmation_email(booking):
-    import traceback
-    from sendgrid import SendGridAPIClient
-    from sendgrid.helpers.mail import Mail
-
-    print("🔥 EMAIL FUNCTION CALLED")
-    print("TO:", booking.user.email)
-
-    try:
-        local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
-        currency = get_currency_symbol(booking.user)
-        counselor_name = booking.counselor.get_full_name() or booking.counselor.username
-
-        message = Mail(
-            from_email='speakappplatform@gmail.com',
-            to_emails=booking.user.email,
-            subject='Your Session is Confirmed 💬',
-            plain_text_content=f"""Hi {booking.user.username},
-
-Your session has been successfully booked! 🎉
-
-Counselor   : {counselor_name}
-Date        : {local_time.strftime('%d %B %Y')}
-Time        : {local_time.strftime('%I:%M %p')}
-Duration    : {booking.duration} minutes
-Amount Paid : {currency}{booking.amount}
-
-– Team Speak
-"""
+""",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user_email],
         )
 
-        sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
-        response = sg.send(message)
-        print(f"✅ EMAIL SENT — status: {response.status_code}")
+        email.attach_file(pdf_path)
+        email.send(fail_silently=False)
+
+        print(f"✅ Invoice email sent to {user_email}")
 
     except Exception as e:
-        print("❌ EMAIL ERROR:", str(e))
-        traceback.print_exc()
+        print(f"❌ Invoice email failed: {str(e)}")
+
 
 # ---------------- REMINDER EMAIL ---------------- #
+
 def send_session_reminders():
     now = timezone.now()
     window_start = now + timedelta(minutes=28)
@@ -215,54 +140,38 @@ def send_session_reminders():
 
     bookings = Booking.objects.filter(
         status='paid',
-        reminder_sent=False,                        # ← don't resend
+        reminder_sent=False,
         slot__start_time__gte=window_start,
         slot__start_time__lte=window_end,
-    ).select_related('user', 'counselor', 'slot')
+    )
 
     for booking in bookings:
         try:
             local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
 
-            # Email to user
-            user_email = EmailMessage(
+            email = EmailMessage(
                 subject="⏰ Session Reminder - Speak",
                 body=f"""
-<p>Hi {booking.user.username},</p>
-<p>Your session with <b>{booking.counselor.username}</b> starts in <b>30 minutes</b>.</p>
-<p><b>Time:</b> {local_time.strftime('%I:%M %p')}</p>
-<p>Join here: <a href="{booking.meeting_link}">{booking.meeting_link}</a></p>
-<p>– Speak Team</p>
-{EMAIL_FOOTER_HTML}
+Hi {booking.user.username},
+
+Your session starts in 30 minutes.
+
+Time: {local_time}
+
+Join link: {booking.meeting_link}
+
+- Speak Team
 """,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[booking.user.email],
             )
-            user_email.content_subtype = "html"
-            user_email.send(fail_silently=False)
 
-            # Email to counselor
-            counselor_email = EmailMessage(
-                subject="⏰ Upcoming Session in 30 Minutes - Speak",
-                body=f"""
-<p>Hi {booking.counselor.username},</p>
-<p>You have a session with <b>{booking.user.username}</b> starting in <b>30 minutes</b>.</p>
-<p><b>Time:</b> {local_time.strftime('%I:%M %p')}</p>
-<p>Join here: <a href="{booking.meeting_link}">{booking.meeting_link}</a></p>
-<p>– Speak Team</p>
-{EMAIL_FOOTER_HTML}
-""",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[booking.counselor.email],
-            )
-            counselor_email.content_subtype = "html"
-            counselor_email.send(fail_silently=False)
+            email.send(fail_silently=False)
 
-            # Mark done so it never fires again for this booking
             booking.reminder_sent = True
             booking.save(update_fields=['reminder_sent'])
 
-            print(f"✅ Reminder sent: booking #{booking.id}")
+            print(f"✅ Reminder sent for booking {booking.id}")
 
         except Exception as e:
-            print(f"❌ Reminder failed for booking #{booking.id}: {str(e)}")
+            print(f"❌ Reminder failed: {str(e)}")
