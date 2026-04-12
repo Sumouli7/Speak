@@ -35,25 +35,44 @@ def get_currency_symbol(user):
 
 
 # ---------------- PAYMENT CONFIRMATION EMAIL ---------------- #
-
 def send_payment_confirmation_email(booking):
-    print("🔥 EMAIL FUNCTION STARTED")
+    import traceback
+    from sendgrid import SendGridAPIClient
+    from sendgrid.helpers.mail import Mail
+
+    print("🔥 EMAIL FUNCTION CALLED")
+    print("TO:", booking.user.email)
 
     try:
-        from django.core.mail import send_mail  # 👈 import inside (important)
+        local_time = convert_to_user_timezone(booking.slot.start_time, booking.user)
+        currency = get_currency_symbol(booking.user)
+        counselor_name = booking.counselor.get_full_name() or booking.counselor.username
 
-        send_mail(
-            "Payment Successful",
-            f"Booking {booking.id} confirmed",
-            settings.DEFAULT_FROM_EMAIL,
-            [booking.user.email],
-            fail_silently=False,
+        message = Mail(
+            from_email='speakappplatform@gmail.com',
+            to_emails=booking.user.email,
+            subject='Your Session is Confirmed 💬',
+            plain_text_content=f"""Hi {booking.user.username},
+
+Your session has been successfully booked! 🎉
+
+Counselor   : {counselor_name}
+Date        : {local_time.strftime('%d %B %Y')}
+Time        : {local_time.strftime('%I:%M %p')}
+Duration    : {booking.duration} minutes
+Amount Paid : {currency}{booking.amount}
+
+– Team Speak
+"""
         )
 
-        print("✅ EMAIL SENT")
+        sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
+        response = sg.send(message)
+        print(f"✅ EMAIL SENT — status: {response.status_code}")
 
     except Exception as e:
         print("❌ EMAIL ERROR:", str(e))
+        traceback.print_exc()
 
 
 # ---------------- PDF GENERATOR ---------------- #

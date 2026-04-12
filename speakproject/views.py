@@ -466,14 +466,15 @@ def payment_success(request, booking_id):
     booking.paid = True
     booking.status = "paid"
     booking.save()
-    send_payment_confirmation_email(booking)
+
+    try:
+        send_payment_confirmation_email(booking)
+    except Exception as e:
+        print(f"❌ Email failed: {str(e)}")
 
     return render(request, "speakproject/payment_success.html", {
         "booking": booking
     })
-
-
-   
 
 
 
