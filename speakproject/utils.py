@@ -49,7 +49,7 @@ def send_payment_confirmation_email(booking):
         counselor_name = booking.counselor.get_full_name() or booking.counselor.username
 
         message = Mail(
-            from_email='speakappplatform@gmail.com',
+            from_email='dospeakwithus@getspeakhub.org',
             to_emails=booking.user.email,
             subject='Your Session is Confirmed 💬',
             plain_text_content=f"""Hi {booking.user.username},
