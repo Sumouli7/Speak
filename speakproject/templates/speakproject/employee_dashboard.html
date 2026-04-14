@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Counselor Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f6f9;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #22c55e;
+}
+
+.btn-primary:hover {
+    background: #16a34a;
+}
+
+.btn-logout {
+    background: #ef4444;
+}
+
+.btn-logout:hover {
+    background: #dc2626;
+}
+
+/* CONTAINER */
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* STATS */
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* SESSION CENTER */
+.session-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 30px;
+}
+
+/* SESSION GRID */
+.session-grid {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+/* CARDS */
+.card {
+    background: white;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+.card:hover {
+    transform: translateY(-6px);
+}
+
+/* SESSION BOX */
+.session-box {
+    width: 320px;
+}
+
+/* SESSION ITEM */
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* INNER CARD */
+.inner-card {
+    background: #f9fafc;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+/* JOIN BUTTON */
+.join-btn {
+    background: #22c55e;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+}
+.join-btn:hover {
+    background: #16a34a;
+}
+
+/* TEXT */
+.inner-card small {
+    color: #666;
+}
+.empty {
+    color: #777;
+    font-style: italic;
+}
+
+/* FOOTER */
+.footer {
+    padding: 30px 10%;
+    background: #5b3f72;
+    color: #fff;
+    margin-top: auto;
+}
+
+.footer-wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.footer-right {
+    text-align: right;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 13px;
+    opacity: 0.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>👨‍⚕️ Welcome {{ request.user.username }}</h2>
+
+    <div class="header-actions">
+        <a href="{% url 'create_slot' %}" class="btn btn-primary">+ Create Slot</a>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-logout">Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- STATS -->
+    <div class="stats">
+    <div class="card">
+        💰 Total Earnings<br>
+        <strong>{{ symbol }} {{ total_earnings }}</strong>
+    </div>
+
+    <div class="card">
+        {{ avg_rating|default:"4.5" }} ⭐
+    </div>
+
+    <div class="card">
+        {{ completed|length }} Sessions
+    </div>
+</div>
+
+    <!-- SESSIONS -->
+    <div class="session-container">
+        <div class="session-grid">
+
+            <!-- ONGOING -->
+           <div class="card session-box">
+    <h3>🔴 Ongoing</h3>
+    {% for b in ongoing %}
+    <div class="inner-card session-item">
+        <div>
+            <strong>{{ b.user.username }}</strong><br>
+            <small>{{ b.slot.start_time|date:"d M Y, h:i A" }}</small>
+        </div>
+
+        <a href="{% url 'session_room' b.id %}" class="join-btn">Join</a>
+    </div>
+    {% empty %}
+    <p class="empty">No live sessions 😌</p>
+    {% endfor %}
+</div>
+
+            <!-- UPCOMING -->
+            <div class="card session-box">
+    <h3>🟡 Upcoming</h3>
+    {% for b in upcoming %}
+    <div class="inner-card session-item">
+        <div>
+            <strong>{{ b.user.username }}</strong><br>
+            <small>{{ b.slot.start_time|date:"d M Y, h:i A" }}</small>
+        </div>
+
+        <span style="font-size:12px; color:#888;">Starts soon</span>
+    </div>
+    {% empty %}
+    <p class="empty">No upcoming sessions 😌</p>
+    {% endfor %}
+</div>
+
+            <!-- COMPLETED -->
+            <div class="card session-box">
+    <h3>⚫ Completed</h3>
+    {% for b in completed %}
+    <div class="inner-card">
+        <strong>{{ b.user.username }}</strong><br>
+        <small>{{ b.slot.start_time|date:"d M Y, h:i A" }}</small>
+    </div>
+    {% empty %}
+    <p class="empty">No completed sessions 😌</p>
+    {% endfor %}
+</div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-wrapper">
+        <div>
+            <h2>Speak</h2>
+            <p>A safe global mental wellness platform.</p>
+        </div>
+
+        <div class="footer-right">
+            <p>support@speak.org</p>
+            <p>admin@speak.org</p>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        © 2026 Speak. Designed with care.
+    </div>
+</footer>
+
+</body>
+</html>

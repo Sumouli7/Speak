@@ -1,0 +1,308 @@
+{% extends 'speakproject/base.html' %}
+{% load static %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+}
+
+/* GRID LAYOUT */
+.container {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 25px;
+    padding: 30px;
+}
+
+/* BOX */
+.box {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 25px;
+    border-radius: 18px;
+}
+
+/* SESSION GRID */
+.session-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+/* CARD */
+.card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+}
+
+/* PROFILE */
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    border: none;
+}
+
+.name {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.desc {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* BUTTONS */
+.btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+    color: white;
+}
+
+.book-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.pay-btn { background: #f59e0b; }
+.join-btn { background: #22c55e; }
+.disabled-btn { background: #9ca3af; }
+
+/* COUNTDOWN */
+.countdown {
+    font-size: 13px;
+    color: #2563eb;
+    margin-top: 5px;
+}
+
+/* STATS + TIPS GRID */
+.extra-cards {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.mini-card {
+    background: white;
+    padding: 18px;
+    border-radius: 14px;
+}
+
+.tip-list {
+    padding-left: 18px;
+}
+.rating {
+    font-size: 12px;
+    color: #f59e0b;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;  /* THIS is key */
+    gap: 12px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+}
+
+.card .btn {
+    align-self: center;
+}
+ .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+    .extra-cards {
+        grid-template-columns: 1fr;
+    }
+   
+
+
+}
+</style>
+
+<div class="container">
+
+    <!-- LEFT SIDE -->
+    <div class="box">
+        <h3>📅 Available Sessions</h3>
+
+        <!-- SESSIONS -->
+        <div class="session-list">
+            {% for slot in slots %}
+            <div class="card">
+
+                <div class="profile-section">
+
+                    {% if slot.counselor.profile.profile_picture %}
+                        <img src="{{ slot.counselor.profile.profile_picture.url }}" 
+     class="profile-pic"
+     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+     
+<div class="profile-pic" style="display:none;align-items:center;justify-content:center;background:#6366f1;color:white;font-weight:bold;">
+    {{ slot.counselor.username|slice:":1"|upper }}
+</div>
+                    {% else %}
+                        <div class="profile-pic" style="display:flex;align-items:center;justify-content:center;background:#6366f1;color:white;font-weight:bold;">
+                            {{ slot.counselor.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="info">
+    <div class="name">{{ slot.counselor.username }}</div>
+    <div class="desc">
+        Gender: {{ slot.counselor.profile.get_gender_display|default:"Not specified" }}
+    </div>
+
+    <div class="desc">
+        {{ slot.counselor.profile.description|default:"Experienced counselor 💜" }}
+    </div>
+
+    <div class="rating">
+        ⭐ {{ slot.counselor.profile.avg_rating }}
+    </div>
+                    </div>
+
+                </div>
+
+                <div>⏰ {{ slot.start_time|date:"d M Y, h:i A" }}</div>
+
+                <a href="{% url 'book_session' slot.id %}" class="btn book-btn">
+                    🚀 Book Now
+                </a>
+
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- STATS + TIPS -->
+        <div class="extra-cards">
+
+            <div class="mini-card">
+                <h4>📊 Your Stats</h4>
+                <p>🗓 Sessions Booked: <b>{{ total_bookings }}</b></p>
+                <p>✅ Sessions Completed: <b>{{ completed_sessions }}</b></p>
+            </div>
+
+            <div class="mini-card">
+                <h4>🌿 Mental Health Tips</h4>
+                <ul class="tip-list">
+                    {% for tip in tips %}
+                        <li>{{ tip }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="box">
+        <h3>📖 Your Bookings</h3>
+
+        <div class="session-list">
+            {% for b in bookings %}
+            <div class="card">
+
+                👨‍⚕️ {{ b.counselor.username }}<br>
+                ⏰ {{ b.slot.start_time|date:"d M Y, h:i A" }}
+
+                <div class="countdown" data-start="{{ b.slot.start_time|date:'c' }}"></div>
+
+                <div>
+                💰 
+                {% if request.user.profile.country == "NG" %}
+                    ₦{{ b.amount }}
+                {% else %}
+                    ₹{{ b.amount }}
+                {% endif %}
+                </div>
+
+                {% if b.paid %}
+
+                    {% if b.status == 'no_show' %}
+                        <span class="btn disabled-btn">💜 Missed</span>
+
+                    {% elif b.is_completed %}
+                        <span class="btn disabled-btn">❌ Ended</span>
+
+                    {% elif b.is_ongoing %}
+                        <a href="{% url 'session_room' b.id %}" class="btn join-btn">▶ Join</a>
+
+                    {% else %}
+                        <span class="btn disabled-btn">⏳ Soon</span>
+                    {% endif %}
+
+                {% else %}
+                    <a href="{% url 'payment' b.id %}" class="btn pay-btn">💳 Pay</a>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<script>
+function updateCountdowns() {
+    document.querySelectorAll('.countdown').forEach(el => {
+        const start = new Date(el.dataset.start);
+        const now = new Date();
+        const diff = start - now;
+
+        if (diff <= 0) {
+            el.innerHTML = "🔴 Live";
+            return;
+        }
+
+        const m = Math.floor(diff / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+
+        el.innerHTML = `⏱ ${m}m ${s}s`;
+    });
+}
+setInterval(updateCountdowns, 1000);
+updateCountdowns();
+</script>
+
+{% endblock %}

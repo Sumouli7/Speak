@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Session Not Started</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: Arial;
+            color: white;
+            text-align: center;
+        }
+
+        .box {
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        .time {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>⏳ Session Not Started Yet</h2>
+    <p>You can join the session 2 minutes before start time.</p>
+
+    <div class="time">
+        Session Time: {{ booking.slot.start_time|date:"d M Y, h:i A" }}
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Successful</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #38ef7d, #11998e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .tick {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            opacity: 0.9;
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: white;
+            color: #11998e;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <div class="tick">✅</div>
+
+    <h2>Payment Successful!</h2>
+
+    <p>Your session has been booked successfully.</p>
+
+    <p><strong>Booking ID:</strong> {{ booking.id }}</p>
+    <p>
+<strong>Amount Paid:</strong> 
+{% if request.user.profile.country == "NG" %}
+    ₦{{ booking.amount }}
+{% else %}
+    ₹{{ booking.amount }}
+{% endif %}
+</p>
+
+    <a href="{% url 'user_dashboard' %}">
+    <button class="btn">Go to Dashboard</button>
+</a>
+        
+    
+</div>
+
+</body>
+</html>

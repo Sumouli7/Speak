@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Registration</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 320px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .input-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.input-field {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+    background: #f9f9f9;
+}
+
+.input-field:focus {
+    border-color: #667eea;
+    background: white;
+}
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+        }
+
+        .link {
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        .login-text a {
+    text-decoration: none;
+    font-weight: 500;
+}
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Create Account</h2>
+
+    <!-- ✅ ONLY ONE FORM -->
+<form method="POST">
+    {% csrf_token %}
+
+    <input type="text" name="username" placeholder="Username" required>
+    <div class="input-group">
+    <label>Country</label>
+
+    <select name="country" required class="input-field">
+        <option value="" disabled selected>Select Country</option>
+        <option value="IN">🇮🇳 India</option>
+        <option value="NG">🇳🇬 Nigeria</option>
+    </select>
+</div>
+
+    <input type="email" name="email" placeholder="Email Address" required>
+    <input type="password" name="password" placeholder="Password" required>
+
+    <button type="submit">Register</button>
+</form>
+    <div class="link">
+        <p class="login-text">
+    Already have an account? <a href="{% url 'login' %}">Login</a>
+</p>
+    </div>
+</div>
+
+</body>
+</html>

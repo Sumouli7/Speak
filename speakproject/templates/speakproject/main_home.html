@@ -1,0 +1,163 @@
+{% extends 'speakproject/base.html' %}
+
+{% block title %}Speak - Mental Wellness{% endblock %}
+
+{% block extra_css %}
+<style>
+    .home-page {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: white;
+        min-height: 100vh;
+    }
+
+    .container {
+        text-align: center;
+        padding: 80px 20px;
+        margin-bottom: 0;
+    }
+
+    h1 {
+        font-size: 48px;
+        margin-bottom: 10px;
+    }
+
+    .tagline {
+        font-size: 18px;
+        opacity: 0.9;
+        margin-bottom: 40px;
+    }
+
+    .emoji {
+        font-size: 50px;
+        margin: 20px 0;
+    }
+
+    .buttons {
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 30px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+        min-width: 180px;
+    }
+
+    .btn-login {
+        background: white;
+        color: #6a11cb;
+    }
+
+    .btn-register {
+        background: #ff7eb3;
+        color: white;
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .cards {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 60px;
+        flex-wrap: wrap;
+    }
+
+    .card {
+        background: rgba(255,255,255,0.15);
+        padding: 20px;
+        border-radius: 15px;
+        width: 250px;
+        backdrop-filter: blur(10px);
+    }
+
+    .card h3 {
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="home-page">
+
+    <div class="container">
+
+        <div class="emoji">🧠💜🌿</div>
+
+        <h1>Speak</h1>
+
+        <div class="tagline">
+            You don’t have to go through it alone.<br>
+            Talk. Heal. Grow. 🌈
+        </div>
+
+        <!-- 🔥 BUTTONS -->
+        <div class="buttons">
+
+            <a href="{% url 'login' %}">
+                <button class="btn btn-login">Login as User 👤</button>
+            </a>
+
+            <a href="{% url 'employee_login' %}">
+                <button class="btn btn-login">Login as Counselor 🧠</button>
+            </a>
+
+            <a href="{% url 'register' %}">
+                <button class="btn btn-register">Register as User 💜</button>
+            </a>
+
+            <a href="{% url 'employee_register' %}">
+                <button class="btn btn-register">Register as Counselor 🌿</button>
+            </a>
+
+        </div>
+
+        <!-- 🛠 ADMIN ACCESS -->
+        <div style="margin-top: 25px; text-align: center;">
+
+            <p style="opacity:0.8; font-size:14px;">Platform management access</p>
+
+            <a href="/admin/">
+                <button class="btn" style="background: #111827; color: white;">
+                    🛠 Admin Login
+                </button>
+            </a>
+
+        </div>
+
+        <!-- FEATURES -->
+        <div class="cards">
+
+            <div class="card">
+                <h3>🧑‍⚕️ Talk to Experts</h3>
+                <p>Connect with trusted counselors anytime.</p>
+            </div>
+
+            <div class="card">
+                <h3>🔒 Safe Space</h3>
+                <p>Your conversations are private and secure.</p>
+            </div>
+
+            <div class="card">
+                <h3>🌿 Feel Better</h3>
+                <p>Small steps lead to big healing.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

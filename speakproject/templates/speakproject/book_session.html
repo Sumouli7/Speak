@@ -1,0 +1,25 @@
+{% extends 'speakproject/base.html' %}
+
+{% block content %}
+
+<div style="padding:40px; max-width:500px; margin:auto;">
+
+    <h2>🧠 Why do you want this session?</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <textarea name="reason" required
+            placeholder="Describe your concern..."
+            style="width:100%; padding:12px; border-radius:10px; margin-top:10px;">
+        </textarea>
+
+        <button class="btn book-btn" style="margin-top:15px;">
+            ✅ Confirm Booking
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}
