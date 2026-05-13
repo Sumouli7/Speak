@@ -87,8 +87,6 @@ TEMPLATES = [
 
 
 # ---------------- DATABASE ---------------- #
-import dj_database_url
-import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
